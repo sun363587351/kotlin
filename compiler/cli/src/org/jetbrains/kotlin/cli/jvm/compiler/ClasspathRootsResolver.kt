@@ -19,7 +19,7 @@ package org.jetbrains.kotlin.cli.jvm.compiler
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.PsiJavaModule
+//import com.intellij.psi.PsiJavaModule
 import com.intellij.psi.PsiManager
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -96,6 +96,8 @@ internal class ClasspathRootsResolver(
     }
 
     private fun modularSourceRoot(root: VirtualFile): JavaModule.Explicit? {
+        return null
+        /*
         val moduleInfoFile =
                 when {
                     root.isDirectory -> root.findChild(PsiJavaModule.MODULE_INFO_FILE)
@@ -106,9 +108,12 @@ internal class ClasspathRootsResolver(
         val psiFile = psiManager.findFile(moduleInfoFile) ?: return null
         val psiJavaModule = psiFile.children.singleOrNull { it is PsiJavaModule } as? PsiJavaModule ?: return null
         return JavaModule.Explicit(JavaModuleInfo.create(psiJavaModule), root, moduleInfoFile, isBinary = false)
+        */
     }
 
     private fun modularBinaryRoot(root: VirtualFile, automaticModuleName: () -> String): JavaModule? {
+        return null
+        /*
         val moduleInfoFile = root.findChild(PsiJavaModule.MODULE_INFO_CLS_FILE)
         return if (moduleInfoFile != null) {
             val moduleInfo = JavaModuleInfo.read(moduleInfoFile) ?: return null
@@ -117,6 +122,7 @@ internal class ClasspathRootsResolver(
         else {
             JavaModule.Automatic(automaticModuleName(), root)
         }
+        */
     }
 
     private fun addModularRoots(modules: List<JavaModule>, result: MutableList<JavaRoot>) {
