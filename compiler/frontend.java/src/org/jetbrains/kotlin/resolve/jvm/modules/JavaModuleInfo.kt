@@ -21,11 +21,13 @@ import com.intellij.psi.PsiJavaModule
 import com.intellij.psi.PsiModifier
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.utils.compactIfPossible
+/*
 import org.jetbrains.org.objectweb.asm.ClassReader
 import org.jetbrains.org.objectweb.asm.ClassVisitor
 import org.jetbrains.org.objectweb.asm.ModuleVisitor
 import org.jetbrains.org.objectweb.asm.Opcodes
-import org.jetbrains.org.objectweb.asm.Opcodes.ACC_TRANSITIVE
+import org.jetbrains.org.objectweb.asm.Opcodes.*
+*/
 import java.io.IOException
 
 class JavaModuleInfo(
@@ -53,6 +55,8 @@ class JavaModuleInfo(
             )
         }
 
+        fun read(file: VirtualFile): JavaModuleInfo? = null // unsupported with this version of ASM
+/*
         fun read(file: VirtualFile): JavaModuleInfo? {
             val contents = try { file.contentsToByteArray() } catch (e: IOException) { return null }
 
@@ -80,5 +84,6 @@ class JavaModuleInfo(
                 JavaModuleInfo(moduleName!!, requires.compactIfPossible(), exports.compactIfPossible())
             else null
         }
+*/
     }
 }
