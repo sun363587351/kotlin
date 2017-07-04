@@ -78,7 +78,7 @@ class AnnotationTypeQualifierResolver(storageManager: StorageManager) {
                         .annotations.findAnnotation(TYPE_QUALIFIER_DEFAULT_FQNAME)!!
                         .allValueArguments
                         .flatMap { (parameter, argument) ->
-                            if (parameter.name == JvmAnnotationNames.DEFAULT_ANNOTATION_MEMBER_NAME)
+                            if (parameter == JvmAnnotationNames.DEFAULT_ANNOTATION_MEMBER_NAME)
                                 argument.mapConstantToQualifierApplicabilityTypes()
                             else
                                 emptyList()
