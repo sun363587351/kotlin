@@ -22,6 +22,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import org.jetbrains.kotlin.idea.intentions.branchedTransformations.intentions.IfToWhenIntention
 import org.jetbrains.kotlin.idea.intentions.branches
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.lastBlockStatementOrThis
@@ -48,6 +49,20 @@ class CascadeIfInspection : AbstractKotlinInspection() {
                     if (expression.anyDescendantOfType<KtExpressionWithLabel> {
                         it is KtBreakExpression || it is KtContinueExpression
                     }) return
+
+                    var current: KtIfExpression? = expression
+                    while (current != null) {
+                        val condition = current.condition
+                        when (condition) {
+                            is KtBinaryExpression -> when (condition.operationToken) {
+                                KtTokens.ANDAND, KtTokens.OROR -> return
+                            }
+                            is KtUnaryExpression -> when (condition.operationToken) {
+                                KtTokens.EXCL -> return
+                            }
+                        }
+                        current = current.`else` as? KtIfExpression
+                    }
 
                     holder.registerProblem(
                             expression.ifKeyword,
