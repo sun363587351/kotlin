@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.incremental.ProtoCompareGenerated.ProtoBufClassKind
 import org.jetbrains.kotlin.incremental.ProtoCompareGenerated.ProtoBufPackageKind
 import org.jetbrains.kotlin.incremental.storage.ProtoMapValue
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.protobuf.MessageLite
 import org.jetbrains.kotlin.serialization.Flags
 import org.jetbrains.kotlin.serialization.ProtoBuf
@@ -70,6 +71,50 @@ fun difference(oldData: ProtoData, newData: ProtoData): Difference =
                 }
             }
         }
+
+
+
+fun computePackageChanges(
+        packageFqName: FqName,
+        protoData: ProtoBuf.Package,
+        nameResolver: NameResolver,
+        createChangeInfo: (FqName, Collection<String>) -> ChangeInfo
+): List<ChangeInfo> {
+    val memberNames =
+            protoData.getNonPrivateNames(
+                    nameResolver,
+                    ProtoBuf.Package::getFunctionList,
+                    ProtoBuf.Package::getPropertyList
+            )
+
+    return listOf(createChangeInfo(packageFqName, memberNames))
+}
+
+fun computeClassChanges(nameResolver: NameResolver, classProto: ProtoBuf.Class, createChangeInfo: (FqName, Collection<String>) -> ChangeInfo): List<ChangeInfo> {
+    val classFqName = nameResolver.getClassId(classProto.fqName).asSingleFqName()
+    val kind = Flags.CLASS_KIND.get(classProto.flags)
+
+    return if (kind == ProtoBuf.Class.Kind.COMPANION_OBJECT) {
+        val memberNames =
+                classProto.getNonPrivateNames(
+                        nameResolver,
+                        ProtoBuf.Class::getConstructorList,
+                        ProtoBuf.Class::getFunctionList,
+                        ProtoBuf.Class::getPropertyList
+                ) + classProto.enumEntryList.map { nameResolver.getString(it.name) }
+
+        val companionObjectChanged = createChangeInfo(classFqName.parent(), listOfNotNull(classFqName.shortName().asString()))
+        val companionObjectMembersChanged = createChangeInfo(classFqName, memberNames)
+
+        listOf(companionObjectMembersChanged, companionObjectChanged)
+    }
+    else {
+        listOf(ChangeInfo.SignatureChanged(classFqName, areSubclassesAffected = true))
+    }
+}
+
+private fun <T> T.getNonPrivateNames(nameResolver: NameResolver, vararg members: T.() -> List<MessageLite>): Set<String> =
+        members.flatMap { this.it().filterNot { it.isPrivate }.names(nameResolver) }.toSet()
 
 internal val MessageLite.isPrivate: Boolean
     get() = Visibilities.isPrivate(Deserialization.visibility(
