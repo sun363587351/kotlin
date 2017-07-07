@@ -79,12 +79,16 @@ fun createSpacingBuilder(settings: CodeStyleSettings, builderUtil: KotlinSpacing
                 }
             }
 
-            inPosition(rightSet = TokenSet.create(EOL_COMMENT, BLOCK_COMMENT)).spacing(
+            inPosition(right = BLOCK_COMMENT).spacing(
+                    Spacing.createSpacing(0, Integer.MAX_VALUE, 0, settings.KEEP_LINE_BREAKS, commonCodeStyleSettings.KEEP_BLANK_LINES_IN_CODE)
+            )
+
+            inPosition(right = EOL_COMMENT).spacing(
                     if (commonCodeStyleSettings.KEEP_FIRST_COLUMN_COMMENT) {
-                        Spacing.createKeepingFirstColumnSpacing(0, Integer.MAX_VALUE, settings.KEEP_LINE_BREAKS, commonCodeStyleSettings.KEEP_BLANK_LINES_IN_CODE)
+                        Spacing.createKeepingFirstColumnSpacing(1, Int.MAX_VALUE, settings.KEEP_LINE_BREAKS, commonCodeStyleSettings.KEEP_BLANK_LINES_IN_CODE)
                     }
                     else {
-                        Spacing.createSpacing(0, Integer.MAX_VALUE, 0, settings.KEEP_LINE_BREAKS, commonCodeStyleSettings.KEEP_BLANK_LINES_IN_CODE)
+                        Spacing.createSpacing(1, Int.MAX_VALUE, 0, settings.KEEP_LINE_BREAKS, commonCodeStyleSettings.KEEP_BLANK_LINES_IN_CODE)
                     }
             )
 
